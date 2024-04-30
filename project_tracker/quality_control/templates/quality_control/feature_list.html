@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+{% block content %}
+    <h1>Список запросов на улучшения</h1>
+    <ul>
+        {% for feature in feature_list %}
+            <li><a href="{% url 'feature_detail' feature.id %}">{{feature.title}}</a></li>
+            Статус: {{feature.status}}
+        {% empty %}
+            <li>В этом проекте пока нет запросов на улучшения.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
