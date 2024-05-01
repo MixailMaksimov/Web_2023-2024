@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django.core.mail import send_mail
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.urls import reverse
 from .models import Project, Task
@@ -22,6 +23,33 @@ def task_detail(request, project_id, task_id):
     task = get_object_or_404(Task, id=task_id, project=project_id)
     return render(request, 'tasks/task_detail.html', {'task': task})
 
+
+from .forms import FeedbackForm, ProjectForm, TaskForm
+
+
+def create_project(request):
+    if request.method == "POST":
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('tasks:projects_list')
+    else:
+        form = ProjectForm()
+    return render(request, 'tasks/project_create.html', {'form': form})
+
+
+def add_task_to_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    if request.method == "POST":
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.project = project
+            task.save()
+            return redirect('tasks:projects_detail', project_id=project_id)
+    else:
+        form = TaskForm()
+    return render(request, 'tasks/add_task.html', {'form': form, 'project': project})
 
 from django.views import View
 
